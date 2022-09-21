@@ -1,10 +1,14 @@
 from telegram_helper import bot
+from telebot.asyncio_filters import StateFilter, IsDigitFilter
 import asyncio
+from check_reminders import reminders_loop
 
 async def main():
 
     try:
-        await asyncio.gather(bot.infinity_polling())
+        bot.add_custom_filter(StateFilter(bot))
+        bot.add_custom_filter(IsDigitFilter())
+        await asyncio.gather(bot.polling(non_stop=True, timeout=40), reminders_loop())
 
     except Exception as e:
         print(e)
