@@ -1,5 +1,3 @@
-from ast import parse
-from operator import indexOf
 import re
 import os
 import csv
@@ -62,7 +60,7 @@ async def handle_buttons(call):
             await track_list(call.message)
         elif data=='menu':
             markup=start_menu() 
-            await bot.edit_message_text('Choice an option!',cid, call.message.id)
+            await bot.edit_message_text('Choice an option!',cid, call.message.id, reply_markup=markup)
         elif data=="track_list_add":
             await track_list_add(call)
         elif data=="track_list_remove":
@@ -113,11 +111,11 @@ async def search_game(message):
                         
                         if game_name.lower() in row[0].lower():
 
-                            if 'PS4' in file:
+                            if 'ps4' in file.lower():
                                 streamstop_price=f"Pro: {round((((float(row[1])*0.50))+(((float(row[1])*0.50)*0.52)))*1.6, 2)}"
-                            elif 'PC' in file or 'Steam' in file:
+                            elif 'pc' in file.lower() or 'steam' in file.lower():
                                 streamstop_price=f"{round((float(row[1])+(float(row[1])*0.25))*1.6, 2)}"
-                            elif 'XBX' in file:
+                            elif 'xbx' in file.lower():
                                 streamstop_price=f"{round(float(((float(row[1])-(float(row[1])*0.40))+((float(row[1])-(float(row[1])*0.40)))*0.56)*1.6), 2)}"
 
                             #ADD WEBSITE NAME
@@ -229,9 +227,9 @@ async def track_list(message):
             if chat[cid]["mid"]!=None:
                 await bot.edit_message_text(chat_id=cid, message_id=chat[cid]["mid"], text=f"List of games on tracking:\n\n{txt}", reply_markup=markup, parse_mode='HTML')
             else:
-                await bot.send_message(cid, f"List of games on tracking:\n\n{txt}")
+                await bot.send_message(cid, f"List of games on tracking:\n\n{txt}", parse_mode='HTML')
         except:
-            await bot.send_message(cid, f"List of games on tracking:\n\n{txt}")
+            await bot.send_message(cid, f"List of games on tracking:\n\n{txt}", parse_mode='HTML')
         
 
     except Exception as e:
@@ -261,7 +259,7 @@ async def track_list_add(message):
             #GET DATA OF TRACKING FILE
             with open('src\DatabaseTracking.json', encoding='utf8') as f:
                 data=json.load(f)
-                f.close()
+                
 
             #Iterate over all data files
             for file in os.listdir('../PriceTrackerV2/data'):
@@ -279,7 +277,7 @@ async def track_list_add(message):
                 
                     for row in file_csv:
                       
-                        if game_name in row[0].lower():
+                        if game_name.lower() in row[0].lower():
                 
                             if 'PS4' in file:
                                 streamstop_price=f"Pro: {round((((float(row[1])*0.50))+(((float(row[1])*0.50)*0.52)))*1.6, 2)} Plus: {round(((float(row[1])-((float(row[1])*0.25)))+(((float(row[1])-((float(row[1])*0.25)))*0.30)))*1.6, 2)}"
@@ -299,8 +297,9 @@ async def track_list_add(message):
 
 
                             data['games'].append(game)
+                            print(data)
                             break
-                    read_file.close()
+                    
 
             #WRITE NEW DATA TO TRACKING FILE
             with open('src\DatabaseTracking.json', 'w', encoding='utf8') as f:
